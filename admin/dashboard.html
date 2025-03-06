@@ -260,6 +260,21 @@
                             <p><strong>אימייל:</strong> ${order.email}</p>
                             <p><strong>כתובת:</strong> ${order.address}</p>
                             <p><strong>תאריך:</strong> ${new Date(order.order_date).toLocaleString('he-IL')}</p>
+                            <div class="order-items">
+                                <p><strong>פריטים שהוזמנו:</strong></p>
+                                <ul>
+                                ${order.items ? Object.values(order.items.reduce((acc, item) => {
+                                    if (acc[item.name]) {
+                                        acc[item.name].quantity++;
+                                    } else {
+                                        acc[item.name] = { ...item, quantity: 1 };
+                                    }
+                                    return acc;
+                                }, {})).map(item => `
+                                    <li>${item.name} x ${item.quantity} - ${item.price}</li>
+                                `).join('') : '<li>אין פריטים</li>'}
+                                </ul>
+                            </div>
                         </div>
                         <div class="order-actions">
                             ${order.status === 'pending' ? `

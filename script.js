@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle order form submission
     const orderForm = document.getElementById('order-form');
+    let cart = [];
     orderForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -48,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
             email: document.getElementById('email').value,
             address: document.getElementById('address').value,
             order_date: new Date().toISOString(),
-            status: 'pending'
+            status: 'pending',
+            items: cart // Add the cart items to the order
         };
 
         console.log('Attempting to submit order:', formData);
@@ -67,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Order submitted successfully:', data);
             alert('תודה על הזמנתך! ניצור איתך קשר בקרוב');
             orderForm.reset();
+            cart = []; // Clear the cart after successful order
         } catch (error) {
             console.error('Error:', error);
             alert('אירעה שגיאה בשליחת ההזמנה. אנא נסה שוב מאוחר יותר.');
@@ -74,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add to cart functionality
-    let cart = [];
     const orderButtons = document.querySelectorAll('.order-button');
     orderButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -84,10 +86,38 @@ document.addEventListener('DOMContentLoaded', () => {
             
             cart.push({
                 name: productName,
-                price: productPrice
+                price: productPrice,
+                quantity: 1
             });
 
             alert(`${productName} נוסף להזמנה!`);
+            updateCartDisplay();
         });
     });
+
+    // Add cart display functionality
+    function updateCartDisplay() {
+        const cartItems = {};
+        
+        // Count quantities
+        cart.forEach(item => {
+            if (cartItems[item.name]) {
+                cartItems[item.name].quantity++;
+            } else {
+                cartItems[item.name] = { ...item };
+            }
+        });
+
+        // Update display if we have a cart element
+        const cartElement = document.getElementById('cart-display');
+        if (cartElement) {
+            cartElement.innerHTML = Object.values(cartItems)
+                .map(item => `
+                    <div class="cart-item">
+                        <span>${item.name} x ${item.quantity}</span>
+                        <span>${item.price}</span>
+                    </div>
+                `).join('');
+        }
+    }
 });
