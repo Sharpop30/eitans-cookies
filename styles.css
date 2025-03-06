@@ -185,6 +185,42 @@ textarea {
     height: 100px;
 }
 
+/* Cart Styles */
+.cart-section {
+    background: #f9f9f9;
+    padding: 40px 0;
+}
+
+#cart-display {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item span {
+    font-size: 1.1em;
+}
+
+.empty-cart {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+}
+
 /* Footer */
 footer {
     background-color: var(--text-color);

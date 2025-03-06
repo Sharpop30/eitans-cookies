@@ -98,6 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add cart display functionality
     function updateCartDisplay() {
         const cartItems = {};
+        const cartElement = document.getElementById('cart-display');
+        
+        if (!cartElement) return;
+
+        if (cart.length === 0) {
+            cartElement.innerHTML = '<div class="empty-cart">העגלה שלך ריקה</div>';
+            return;
+        }
         
         // Count quantities
         cart.forEach(item => {
@@ -108,16 +116,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Update display if we have a cart element
-        const cartElement = document.getElementById('cart-display');
-        if (cartElement) {
-            cartElement.innerHTML = Object.values(cartItems)
-                .map(item => `
-                    <div class="cart-item">
-                        <span>${item.name} x ${item.quantity}</span>
-                        <span>${item.price}</span>
-                    </div>
-                `).join('');
-        }
+        // Update display
+        cartElement.innerHTML = Object.values(cartItems)
+            .map(item => `
+                <div class="cart-item">
+                    <span>${item.name} x ${item.quantity}</span>
+                    <span>${item.price}</span>
+                </div>
+            `).join('');
     }
+
+    // Call updateCartDisplay initially
+    updateCartDisplay();
 });
