@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eitan's Cookies - Bite into happiness!</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="hero">
+        <nav>
+            <div class="logo">🍪 Eitan's Cookies</div>
+        </nav>
+        <div class="hero-content">
+            <h1>Eitan's Cookies</h1>
+            <p>Bite into happiness!</p>
+            <a href="#order" class="cta-button">הזמינו עכשיו</a>
+        </div>
+    </header>
+
+    <section id="features">
+        <div class="container">
+            <div class="feature">
+                <span class="emoji">🌟</span>
+                <h3>חומרים איכותיים</h3>
+                <p>רק החומרים הטובים ביותר נכנסים לעוגיות שלנו</p>
+            </div>
+            <div class="feature">
+                <span class="emoji">🏆</span>
+                <h3>מתכון סודי</h3>
+                <p>מתכון משפחתי שעובר מדור לדור</p>
+            </div>
+            <div class="feature">
+                <span class="emoji">🚚</span>
+                <h3>משלוח עד הבית</h3>
+                <p>משלוח מהיר וטרי ישירות אליכם</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="products">
+        <div class="container">
+            <h2>העוגיות שלנו</h2>
+            <div class="products-grid">
+                <div class="product">
+                    <img src="images/image2.jpeg" alt="עוגיות שוקולד צ'יפס">
+                    <h3>שוקולד צ'יפס קלאסי</h3>
+                    <p>₪40 לתריסר</p>
+                    <button class="order-button">הוסף להזמנה</button>
+                </div>
+                <div class="product">
+                    <img src="images/image3.jpeg" alt="עוגיות שוקולד כפול">
+                    <h3>שוקולד כפול</h3>
+                    <p>₪45 לתריסר</p>
+                    <button class="order-button">הוסף להזמנה</button>
+                </div>
+                <div class="product">
+                    <img src="images/image2.jpeg" alt="עוגיות אגוזים">
+                    <h3>עוגיות אגוזים</h3>
+                    <p>₪42 לתריסר</p>
+                    <button class="order-button">הוסף להזמנה</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="order">
+        <div class="container">
+            <h2>הזמינו עכשיו</h2>
+            <form id="order-form">
+                <div class="form-group">
+                    <label for="name">שם מלא</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">טלפון</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">אימייל</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">כתובת למשלוח</label>
+                    <textarea id="address" required></textarea>
+                </div>
+                <button type="submit" class="cta-button">שלח הזמנה</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p> 2025 Eitan's Cookies. כל הזכויות שמורות.</p>
+            <div class="contact">
+                <p> 📞 טלפון: 050-1234567</p>
+                <p> 📧 אימייל: info@cookies.co.il</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
