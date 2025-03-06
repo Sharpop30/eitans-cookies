@@ -1,3 +1,8 @@
+// Initialize Supabase client
+const supabaseUrl = 'https://mjqcubvhzktcvajgfryq.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qcWN1YnZoemt0Y3ZhamdmcnlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyOTgzMDQsImV4cCI6MjA1Njg3NDMwNH0.sYzG29OoQ1wZ42LxyXKBUFI8q3kUcfIqA2oJVS8vy6c'
+const supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
 document.addEventListener('DOMContentLoaded', () => {
     // Handle smooth scrolling for navigation
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -11,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle order form submission
     const orderForm = document.getElementById('order-form');
-    orderForm.addEventListener('submit', (e) => {
+    orderForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         // Get form data
@@ -19,21 +24,44 @@ document.addEventListener('DOMContentLoaded', () => {
             name: document.getElementById('name').value,
             phone: document.getElementById('phone').value,
             email: document.getElementById('email').value,
-            address: document.getElementById('address').value
+            address: document.getElementById('address').value,
+            order_date: new Date().toISOString(),
+            status: 'pending'
         };
 
-        // Here you would typically send this data to your server
-        // For now, we'll just show a success message
-        alert('תודה על הזמנתך! ניצור איתך קשר בקרוב');
-        orderForm.reset();
+        try {
+            // Insert order into Supabase
+            const { data, error } = await supabase
+                .from('orders')
+                .insert([formData]);
+
+            if (error) {
+                console.error('Error:', error);
+                throw error;
+            }
+
+            alert('תודה על הזמנתך! ניצור איתך קשר בקרוב');
+            orderForm.reset();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('אירעה שגיאה בשליחת ההזמנה. אנא נסה שוב מאוחר יותר.');
+        }
     });
 
     // Add to cart functionality
+    let cart = [];
     const orderButtons = document.querySelectorAll('.order-button');
     orderButtons.forEach(button => {
         button.addEventListener('click', () => {
             const product = button.parentElement;
             const productName = product.querySelector('h3').textContent;
+            const productPrice = product.querySelector('p').textContent;
+            
+            cart.push({
+                name: productName,
+                price: productPrice
+            });
+
             alert(`${productName} נוסף להזמנה!`);
         });
     });
