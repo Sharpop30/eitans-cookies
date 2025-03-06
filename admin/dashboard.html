@@ -204,7 +204,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const ADMIN_PASSWORD = '123456'; // שנה את זה לסיסמה שאתה רוצה
-        const supabase = supabase.createClient(
+        const supabaseClient = window.supabase.createClient(
             'https://mjqcubvhzktcvajgfryq.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qcWN1YnZoemt0Y3ZhamdmcnlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyOTgzMDQsImV4cCI6MjA1Njg3NDMwNH0.sYzG29OoQ1wZ42LxyXKBUFI8q3kUcfIqA2oJVS8vy6c'
         );
@@ -237,7 +237,7 @@
 
         async function loadOrders() {
             try {
-                let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
+                let query = supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
                 
                 if (currentFilter !== 'all') {
                     query = query.eq('status', currentFilter);
@@ -278,7 +278,7 @@
 
         async function updateOrderStatus(orderId, newStatus) {
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('orders')
                     .update({ status: newStatus })
                     .eq('id', orderId);
