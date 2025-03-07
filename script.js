@@ -5,43 +5,47 @@ const supabaseClient = window.supabase.createClient(
 );
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Test Supabase connection
-    async function testConnection() {
-        try {
-            const { data, error } = await supabaseClient
-                .from('orders')
-                .select('*')
-                .limit(1);
-            
-            if (error) {
-                console.error('Supabase connection error:', error);
-            } else {
-                console.log('Supabase connected successfully!');
-                console.log('Test query result:', data);
+    let cart = [];
+    const specialOffers = {
+        'buy2get1': {
+            condition: (items) => {
+                // Check if there are 3 or more items of the same type
+                const quantities = {};
+                items.forEach(item => {
+                    quantities[item.name] = (quantities[item.name] || 0) + 1;
+                });
+                return Object.values(quantities).some(qty => qty >= 3);
+            },
+            message: 'מבצע: קנה 2 קבל 1 חינם!',
+            apply: (items) => {
+                const quantities = {};
+                items.forEach(item => {
+                    quantities[item.name] = (quantities[item.name] || 0) + 1;
+                });
+                
+                let discount = 0;
+                Object.entries(quantities).forEach(([name, qty]) => {
+                    if (qty >= 3) {
+                        const freeItems = Math.floor(qty / 3);
+                        const price = parseFloat(items.find(item => item.name === name).price.replace('₪', ''));
+                        discount += freeItems * price;
+                    }
+                });
+                return discount;
             }
-        } catch (err) {
-            console.error('Error testing connection:', err);
         }
-    }
-
-    testConnection();
-
-    // Handle smooth scrolling for navigation
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
-    });
+    };
 
     // Handle order form submission
     const orderForm = document.getElementById('order-form');
-    let cart = [];
     orderForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        if (cart.length === 0) {
+            alert('העגלה ריקה! אנא הוסף פריטים לפני שליחת ההזמנה.');
+            return;
+        }
+
         // Get form data
         const formData = {
             name: document.getElementById('name').value,
@@ -50,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             address: document.getElementById('address').value,
             order_date: new Date().toISOString(),
             status: 'pending',
-            items: cart // Add the cart items to the order
+            items: cart
         };
 
         console.log('Attempting to submit order:', formData);
@@ -69,7 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Order submitted successfully:', data);
             alert('תודה על הזמנתך! ניצור איתך קשר בקרוב');
             orderForm.reset();
-            cart = []; // Clear the cart after successful order
+            cart = [];
+            updateCartDisplay();
         } catch (error) {
             console.error('Error:', error);
             alert('אירעה שגיאה בשליחת ההזמנה. אנא נסה שוב מאוחר יותר.');
@@ -90,41 +95,110 @@ document.addEventListener('DOMContentLoaded', () => {
                 quantity: 1
             });
 
-            alert(`${productName} נוסף להזמנה!`);
             updateCartDisplay();
         });
     });
 
+    // Cart functionality
+    function updateQuantity(index, delta) {
+        if (cart[index]) {
+            if (delta === -1 && cart[index].quantity === 1) {
+                cart.splice(index, 1);
+            } else {
+                cart[index].quantity += delta;
+            }
+            updateCartDisplay();
+        }
+    }
+
+    function deleteItem(index) {
+        cart.splice(index, 1);
+        updateCartDisplay();
+    }
+
+    function calculateTotal(items) {
+        return items.reduce((total, item) => {
+            const price = parseFloat(item.price.replace('₪', ''));
+            return total + (price * item.quantity);
+        }, 0);
+    }
+
+    function checkSpecialOffers(items) {
+        const activeOffers = [];
+        let totalDiscount = 0;
+
+        for (const [key, offer] of Object.entries(specialOffers)) {
+            if (offer.condition(items)) {
+                activeOffers.push(offer.message);
+                totalDiscount += offer.apply(items);
+            }
+        }
+
+        return { activeOffers, totalDiscount };
+    }
+
     // Add cart display functionality
     function updateCartDisplay() {
-        const cartItems = {};
         const cartElement = document.getElementById('cart-display');
+        const cartSummary = document.getElementById('cart-summary');
+        const specialOffersElement = document.getElementById('special-offers');
         
-        if (!cartElement) return;
+        if (!cartElement || !cartSummary || !specialOffersElement) return;
 
         if (cart.length === 0) {
             cartElement.innerHTML = '<div class="empty-cart">העגלה שלך ריקה</div>';
+            cartSummary.style.display = 'none';
             return;
         }
-        
-        // Count quantities
-        cart.forEach(item => {
-            if (cartItems[item.name]) {
-                cartItems[item.name].quantity++;
-            } else {
-                cartItems[item.name] = { ...item };
-            }
-        });
 
-        // Update display
-        cartElement.innerHTML = Object.values(cartItems)
-            .map(item => `
+        cartSummary.style.display = 'block';
+
+        // Group items by name and sum quantities
+        const groupedItems = cart.reduce((acc, item) => {
+            if (!acc[item.name]) {
+                acc[item.name] = { ...item };
+            } else {
+                acc[item.name].quantity++;
+            }
+            return acc;
+        }, {});
+
+        // Display cart items
+        cartElement.innerHTML = Object.values(groupedItems)
+            .map((item, index) => `
                 <div class="cart-item">
-                    <span>${item.name} x ${item.quantity}</span>
-                    <span>${item.price}</span>
+                    <div class="cart-item-details">
+                        <span class="cart-item-name">${item.name}</span>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="cart-item-actions">
+                        <span>${item.price}</span>
+                        <button class="delete-item" onclick="deleteItem(${index})">🗑️</button>
+                    </div>
                 </div>
             `).join('');
+
+        // Check for special offers
+        const { activeOffers, totalDiscount } = checkSpecialOffers(cart);
+        
+        // Display special offers
+        specialOffersElement.innerHTML = activeOffers.length > 0 
+            ? activeOffers.map(offer => `<div class="special-offer">${offer}</div>`).join('')
+            : '';
+
+        // Calculate and display total
+        const subtotal = calculateTotal(cart);
+        const total = subtotal - totalDiscount;
+        document.getElementById('cart-total-amount').textContent = `₪${total.toFixed(2)}`;
     }
+
+    // Make functions available globally
+    window.updateQuantity = updateQuantity;
+    window.deleteItem = deleteItem;
 
     // Call updateCartDisplay initially
     updateCartDisplay();
